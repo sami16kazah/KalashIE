@@ -12,7 +12,7 @@ app.use(json());
 app.use(
   cookieSession({
     // signed false to https only
-    // signed : false,
+    // \signed : false,
     secret: "some key secret",
     maxAge: 604800000, // one week before expire
   })

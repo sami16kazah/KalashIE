@@ -5,9 +5,9 @@ import { Request, Response, NextFunction } from "express";
 import { User } from "../../model/user";
 import { compare, hash } from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { NotFoundError } from "../../errors/not-found_error";
 
 const jwtKey = "this is json web token key";
-
 export const postLogin = async (
   req: Request,
   res: Response,
@@ -16,7 +16,7 @@ export const postLogin = async (
   const { email, password } = req.body;
   const findUser = await User.findOne({ email });
   if (!findUser) {
-    throw new NotAuthourizedError("This Email Is Is Not Registred !");
+    throw new NotFoundError();
     return;
   }
   if (findUser.verifiedToken) {
@@ -34,6 +34,7 @@ export const postLogin = async (
     res.status(201).send([{ message: "Verify your account please !" }]);
     return;
   }
+
   compare(password, findUser.password)
     .then((doMatch) => {
       if (!doMatch) {
@@ -53,5 +54,6 @@ export const postLogin = async (
     })
     .catch((err) => {
       console.log(err);
+      throw new NotAuthourizedError("Not Authourize");
     });
 };

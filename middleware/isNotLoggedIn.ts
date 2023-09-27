@@ -4,7 +4,7 @@ export const isNotLoggedIn = (
   res: Response,
   next: NextFunction
 ) => {
-  if (req.currentUser) {
+  if (req.currentUser && req.currentUser.role) {
     return res.redirect("/currentUser");
   }
 

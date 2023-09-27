@@ -15,6 +15,7 @@ import { isLoggedIn } from "../middleware/isLoggedIn";
 import { validateRequest } from "../middleware/validate_request";
 import { requireAdmin } from "../middleware/require_admin";
 import { isNotLoggedIn } from "../middleware/isNotLoggedIn";
+import { rateLimiterMiddleware } from "../middleware/rate-limiter";
 const router = express.Router();
 
 router.post(
@@ -50,6 +51,7 @@ router.post(
   validateRequest,
   currentUser,
   isNotLoggedIn,
+  rateLimiterMiddleware,
   postSignUp
 );
 
@@ -64,23 +66,49 @@ router.post(
       .isLength({ min: 6, max: 20 })
       .withMessage("Password Must Be Between 6 And 20 Characters !"),
   ],
+  validateRequest,
   currentUser,
   isNotLoggedIn,
-  validateRequest,
+  rateLimiterMiddleware,
   postLogin
 );
 
-router.post("/logout", currentUser, isLoggedIn, postLogOut);
-router.get("/currentUser", currentUser, isLoggedIn, (req, res) => {
-  res.send({ currentUser: req.currentUser || null });
-});
+router.post(
+  "/logout",
+  rateLimiterMiddleware,
+  currentUser,
+  isLoggedIn,
+  postLogOut
+);
+router.get(
+  "/currentUser",
+  rateLimiterMiddleware,
+  currentUser,
+  isLoggedIn,
+  (req, res) => {
+    res.send({ currentUser: req.currentUser || null });
+  }
+);
 
-router.get("/verify/:token", currentUser, isNotLoggedIn, verifyToken);
-router.get("/resendToken", currentUser, isNotLoggedIn, resendToken);
+router.get(
+  "/verify/:token",
+  rateLimiterMiddleware,
+  currentUser,
+  isNotLoggedIn,
+  verifyToken
+);
+router.get(
+  "/resendToken",
+  rateLimiterMiddleware,
+  currentUser,
+  isNotLoggedIn,
+  resendToken
+);
 router.post(
   "/forgetPassword",
   [body("email").isEmail().notEmpty().withMessage("Email Must Be Valid !")],
   validateRequest,
+  rateLimiterMiddleware,
   currentUser,
   isNotLoggedIn,
   forgetPassword
@@ -97,8 +125,10 @@ router.post(
     body("token").isString().notEmpty().withMessage("Token Must Be Valid !"),
   ],
   validateRequest,
+  rateLimiterMiddleware,
   currentUser,
   isNotLoggedIn,
+
   postChangePassword
 );
 

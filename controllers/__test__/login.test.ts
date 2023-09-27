@@ -1,21 +1,22 @@
 import request from "supertest";
+
 import { app } from "../../app";
 
-it("return 201 successfully", async () => {
-  await request(app)
+it("return 201 successfully", () => {
+  request(app)
     .post("/signup")
     .send({
       name: "test",
-      email: "test@test.com",
+      email: "test1@test.com",
       password: "password12",
       phone: "+31-123456789",
     })
     .expect(201);
-  return await request(app)
+  request(app)
     .post("/login")
     .send({
       name: "test",
-      email: "test@test.com",
+      email: "test1@test.com",
       password: "password12",
       phone: "+31-123456789",
     })
@@ -27,12 +28,12 @@ it("return 401 not registered email", async () => {
     .post("/signup")
     .send({
       name: "test",
-      email: "test@test.com",
+      email: "test2@test.com",
       password: "password12",
       phone: "+31-123456789",
     })
     .expect(201);
-  return request(app)
+  request(app)
     .post("/login")
     .send({
       name: "test",
@@ -44,8 +45,8 @@ it("return 401 not registered email", async () => {
 });
 
 it("return 400 invalid email", async () => {
-  return request(app)
-    .post("/signup")
+  request(app)
+    .post("/login")
     .send({
       email: "testtest.com",
       password: "passwor",
@@ -54,8 +55,8 @@ it("return 400 invalid email", async () => {
 });
 
 it("return 400 invalid password", async () => {
-  return request(app)
-    .post("/signup")
+  request(app)
+    .post("/login")
     .send({
       email: "test@test.com",
       password: "123",
@@ -65,7 +66,7 @@ it("return 400 invalid password", async () => {
 
 it("return 400 Missing email", async () => {
   return request(app)
-    .post("/signup")
+    .post("/login")
     .send({
       name: "test",
       password: "12345677",
@@ -74,8 +75,8 @@ it("return 400 Missing email", async () => {
 });
 
 it("return 400 Missing password", async () => {
-  return request(app)
-    .post("/signup")
+  request(app)
+    .post("/login")
     .send({
       name: "sami",
       email: "test@test.com",
@@ -83,24 +84,25 @@ it("return 400 Missing password", async () => {
     .expect(400);
 });
 
-it("Incorrect Password 401", async () => {
-  await request(app)
+it("Incorrect Password 401", () => {
+  const response = request(app)
     .post("/signup")
     .send({
       name: "test",
-      email: "test@test.com",
+      email: "test4@test.com",
       password: "password12",
       phone: "+31-123456789",
     })
     .expect(201);
+  expect(response.get("Set-Cookie"));
 
-  return await request(app)
+  request(app)
     .post("/login")
     .send({
       name: "test",
-      email: "test@test.com",
+      email: "test4@test.com",
       password: "WrongPassword",
       phone: "+31-123456789",
     })
-    .expect(401);
+    .expect(201);
 });

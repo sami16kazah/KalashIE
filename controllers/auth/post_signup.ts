@@ -34,19 +34,7 @@ export const postSignUp = async (
       role: "user",
     });
     await newUser.save();
-    //generate jwt
-    const UserJwt = jwt.sign(
-      {
-        id: newUser.id,
-        email: newUser.email,
-        token: token,
-      },
-      jwtKey
-    );
-    // store jwt on session
-    req.session = {
-      jwt: UserJwt,
-    };
-    res.status(201).send([{ jwt: UserJwt }, { user: newUser }]);
+
+    res.status(201).send([{ user: newUser }]);
   });
 };

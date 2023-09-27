@@ -1,12 +1,14 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { NotAuthourizedError } from "../errors/NotAuthourizeError";
+import { NotFoundError } from "../errors/not-found_error";
 const jwtKey = "this is json web token key";
 
 interface UserPayload {
   id: string;
   email: string;
   role: string;
-  token: string;
+  token?: string;
 }
 
 declare global {
@@ -28,6 +30,8 @@ export const currentUser = (
   try {
     const payload = jwt.verify(req.session.jwt, jwtKey) as UserPayload;
     req.currentUser = payload;
-  } catch (err) {}
+  } catch (err) {
+    throw new NotAuthourizedError("user not auth");
+  }
   next();
 };
